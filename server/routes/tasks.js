@@ -54,7 +54,8 @@ Each task must follow this schema exactly:
   "completed": false,
   "duration": 30 | 60 | 90 | 120
 }
-Resolve relative dates like "tomorrow", "Friday", "next week" using today: ${TODAY}.`,
+Resolve relative dates like "tomorrow", "Friday", "next week" using today: ${TODAY}.
+priorityScore rules: deadline today + high priority = 90-100. deadline tomorrow + high = 75-90. medium priority this week = 50-70. low priority no deadline = 10-30. NEVER return the same score for multiple tasks.`,
             },
             {
               role: "user",
