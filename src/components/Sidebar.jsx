@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import useTasks from "../store/useTasks";
 
 export default function Sidebar() {
+  const [open, setOpen] = useState(false);
   const { tasks } = useTasks();
   const pending = tasks.filter((t) => !t.completed).length;
   const high = tasks.filter(
@@ -21,9 +23,8 @@ export default function Sidebar() {
     { to: "/settings", label: "Settings", icon: "⚙" },
   ];
 
-  return (
-    <aside className="w-48 h-screen bg-[#0e0e0d] border-r border-[#1e1e1a] flex flex-col py-5 px-3 shrink-0">
-      {/* Logo */}
+  const sidebarContent = (
+    <aside className="w-48 h-full bg-[#0e0e0d] border-r border-[#1e1e1a] flex flex-col py-5 px-3">
       <div className="mb-8 px-2">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 bg-[#f0a500] rounded flex items-center justify-center">
@@ -38,13 +39,13 @@ export default function Sidebar() {
         </p>
       </div>
 
-      {/* Nav */}
       <nav className="flex flex-col gap-0.5">
         {links.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}
             end
+            onClick={() => setOpen(false)}
             className={({ isActive }) =>
               `flex items-center gap-2.5 px-2.5 py-2 rounded-md text-xs font-mono transition-all
               ${
@@ -65,10 +66,8 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Divider */}
       <div className="my-4 border-t border-[#1e1e1a]" />
 
-      {/* Quick stats */}
       <div className="flex flex-col gap-1 px-1">
         <p className="text-[#2e2e2a] text-xs font-mono uppercase tracking-widest mb-2">
           Overview
@@ -105,7 +104,6 @@ export default function Sidebar() {
         ))}
       </div>
 
-      {/* Footer */}
       <div className="mt-auto pt-4 border-t border-[#1e1e1a] px-1">
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-[#6a9e6a] animate-pulse shrink-0" />
@@ -116,5 +114,33 @@ export default function Sidebar() {
         <p className="text-[#1e1e1a] text-xs font-mono mt-1">v1.0.0</p>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop */}
+      <div className="hidden md:flex h-screen shrink-0">{sidebarContent}</div>
+
+      {/* Mobile hamburger button */}
+      <button
+        onClick={() => setOpen(true)}
+        className="md:hidden fixed top-4 left-4 z-50 bg-[#1a1a17] border border-[#2a2a26] rounded-md p-2 text-[#e8e4dc]"
+      >
+        ☰
+      </button>
+
+      {/* Mobile drawer */}
+      {open && (
+        <>
+          <div
+            className="md:hidden fixed inset-0 bg-black/60 z-40"
+            onClick={() => setOpen(false)}
+          />
+          <div className="md:hidden fixed left-0 top-0 h-full z-50 w-48">
+            {sidebarContent}
+          </div>
+        </>
+      )}
+    </>
   );
 }

@@ -97,7 +97,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-3 mb-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
           {stats.map((stat) => (
             <div
               key={stat.label}
@@ -124,7 +124,7 @@ export default function Dashboard() {
         </div>
 
         {/* Main Layout */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Left */}
           <div className="col-span-2 flex flex-col gap-3">
             <InputBox />
@@ -151,7 +151,7 @@ export default function Dashboard() {
             </div>
 
             {/* Tasks */}
-            <div className="flex flex-col gap-2">
+            <div className="col-span-1 md:col-span-2 flex flex-col gap-3">
               {isLoading && (
                 <div className="flex flex-col items-center justify-center py-16 gap-3">
                   <div className="flex gap-1.5">
@@ -187,7 +187,7 @@ export default function Dashboard() {
           </div>
 
           {/* Right */}
-          <div className="col-span-1 flex flex-col gap-3">
+          <div className="col-span-1 md:col-span-2 flex flex-col gap-3">
             <Schedule />
 
             {total > 0 && (
