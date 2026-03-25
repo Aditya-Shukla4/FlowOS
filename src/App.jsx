@@ -1,14 +1,24 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import Sidebar from "./components/Sidebar";
+import Topbar from "./components/Topbar";
 
-export default function App() {
+function AppShell() {
+  const location = useLocation();
+  const titles = {
+    "/": "Dashboard",
+    "/analytics": "Analytics",
+    "/settings": "Settings",
+  };
+  const pageTitle = titles[location.pathname] || "FlowOS";
+
   return (
-    <BrowserRouter>
-      <div className="flex h-screen bg-[#1a1a18] text-[#e8e4dc] overflow-hidden">
-        <Sidebar />
+    <div className="flex h-screen bg-[#141412] text-[#e8e4dc] overflow-hidden">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Topbar title={pageTitle} />
         <main className="flex-1 overflow-y-auto">
           <Routes>
             <Route path="/" element={<Dashboard />} />
@@ -17,6 +27,14 @@ export default function App() {
           </Routes>
         </main>
       </div>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppShell />
     </BrowserRouter>
   );
 }
