@@ -19,8 +19,7 @@ app.get("/health", (_, res) => res.json({ status: "ok" }));
 // 4. 🔥 THE FIX: Serve React frontend correctly
 app.use(express.static(path.join(__dirname, "../dist")));
 
-// 5. 🔥 THE FIX: Catch-all route for React Router (Sab routes ko index.html pe bhejo)
-app.get("*", (req, res) => {
+app.get(/(.*)/, (req, res) => {
   res.sendFile(path.join(__dirname, "../dist", "index.html"));
 });
 
