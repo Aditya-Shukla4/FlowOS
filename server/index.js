@@ -1,7 +1,8 @@
-require("dotenv").config(); // No path — works locally AND on Render/Railway
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const path = require("path");
 
 const app = express();
 
@@ -10,8 +11,13 @@ app.use(express.json());
 
 app.use("/api/tasks", require("./routes/tasks"));
 
-// Health check — useful for Render free tier keep-alive
 app.get("/health", (_, res) => res.json({ status: "ok" }));
+
+// Serve React frontend
+app.use(express.static(path.join(__dirname, "../dist")));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist", "index.html"));
+});
 
 const PORT = process.env.PORT || 5000;
 
