@@ -61,7 +61,7 @@ export default function Dashboard() {
 
           {/* Filter */}
           <div className="flex gap-2">
-            {["all", "today", "completed"].map((f) => (
+            {["all", "today", "high", "completed"].map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}

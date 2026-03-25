@@ -1,61 +1,63 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { extractTasksAPI } from "../services/api"; // Ye zaroori hai!
+import { extractTasksAPI } from "../services/api";
+
+const getId = (t) => t._id || t.id;
 
 const useTasks = create(
   persist(
     (set, get) => ({
       tasks: [],
       isLoading: false,
+      error: null,
       filter: "all",
 
       setLoading: (val) => set({ isLoading: val }),
+      setError: (msg) => set({ error: msg }),
 
-      // 🔥 YE HAI TERA MERN EDGE!
-      // Ab ye frontend pe extraction nahi karega, backend se mangwayega
       addTasksFromAI: async (rawInput) => {
-        set({ isLoading: true });
+        set({ isLoading: true, error: null });
         try {
-          const savedTasks = await extractTasksAPI(rawInput); // Backend API Call
+          const savedTasks = await extractTasksAPI(rawInput);
           set((state) => {
-            const existingIds = new Set(state.tasks.map((t) => t.id || t._id));
-            const filtered = savedTasks.filter(
-              (t) => !existingIds.has(t.id || t._id),
-            );
-            return { tasks: [...state.tasks, ...filtered] };
+            const existingIds = new Set(state.tasks.map(getId));
+            const fresh = savedTasks.filter((t) => !existingIds.has(getId(t)));
+            return { tasks: [...state.tasks, ...fresh] };
           });
+          return { success: true, count: savedTasks.length };
         } catch (err) {
-          console.error("MERN Integration Error:", err);
-          alert("Backend se connect nahi ho paya bhai!");
+          console.error("API Error:", err);
+          set({
+            error:
+              err.message || "Failed to extract tasks. Check your connection.",
+          });
+          return { success: false };
         } finally {
           set({ isLoading: false });
         }
       },
 
-      // Normal manual add ke liye purana function rehne de
       addTasks: (newTasks) =>
         set((state) => {
-          const existingIds = new Set(state.tasks.map((t) => t.id || t._id));
-          const filtered = newTasks.filter(
-            (t) => !existingIds.has(t.id || t._id),
-          );
-          return { tasks: [...state.tasks, ...filtered] };
+          const existingIds = new Set(state.tasks.map(getId));
+          const fresh = newTasks.filter((t) => !existingIds.has(getId(t)));
+          return { tasks: [...state.tasks, ...fresh] };
         }),
 
       toggleComplete: (id) =>
         set((state) => ({
           tasks: state.tasks.map((t) =>
-            t.id === id || t._id === id ? { ...t, completed: !t.completed } : t,
+            getId(t) === id ? { ...t, completed: !t.completed } : t,
           ),
         })),
 
       deleteTask: (id) =>
         set((state) => ({
-          tasks: state.tasks.filter((t) => t.id !== id && t._id !== id),
+          tasks: state.tasks.filter((t) => getId(t) !== id),
         })),
 
       setFilter: (filter) => set({ filter }),
-      clearAllTasks: () => set({ tasks: [] }),
+      clearAllTasks: () => set({ tasks: [], error: null }),
 
       getFilteredTasks: () => {
         const { tasks, filter } = get();
@@ -65,6 +67,8 @@ const useTasks = create(
             (t) => t.deadline && new Date(t.deadline).toDateString() === today,
           );
         if (filter === "completed") return tasks.filter((t) => t.completed);
+        if (filter === "high")
+          return tasks.filter((t) => t.priority === "high");
         return tasks;
       },
     }),
