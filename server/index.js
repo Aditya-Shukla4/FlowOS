@@ -6,33 +6,39 @@ const path = require("path");
 
 const app = express();
 
+// 1. CORS Allow All (Demo ke liye zero restrictions)
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
+// 2. API Routes
 app.use("/api/tasks", require("./routes/tasks"));
 
+// 3. Health Check (Render ko batane ke liye ki server zinda hai)
 app.get("/health", (_, res) => res.json({ status: "ok" }));
 
-// Serve React frontend
+// 4. 🔥 THE FIX: Serve React frontend correctly
 app.use(express.static(path.join(__dirname, "../dist")));
-app.get("/{*path}", (req, res) => {
+
+// 5. 🔥 THE FIX: Catch-all route for React Router (Sab routes ko index.html pe bhejo)
+app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist", "index.html"));
 });
 
+// 6. Database Connection & Start
 const PORT = process.env.PORT || 5000;
 
 if (!process.env.MONGO_URI) {
-  console.error("ERROR: MONGO_URI missing in .env");
+  console.error("💀 ERROR: MONGO_URI is missing!");
   process.exit(1);
 }
 
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    console.log("MongoDB connected");
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    console.log("🔥 MongoDB connected successfully");
+    app.listen(PORT, () => console.log(`🚀 Server zinda hai port ${PORT} pe!`));
   })
   .catch((err) => {
-    console.error("MongoDB connection failed:", err);
+    console.error("💀 MongoDB connection failed:", err);
     process.exit(1);
   });
